@@ -95,6 +95,7 @@ func main() {
 	fmt.Println("[server] version =", VERSION)
 	fmt.Println("[server] gzip level =", *gziplv)
 	fmt.Println("[server] max history count =", *rev)
+	fmt.Println("[server] Open browser and navigate to ", *addr)
 
 	// read in accounts
 	af, err := os.Open(*accounts)
