@@ -65,8 +65,8 @@ Run:
   - default base TW5 HTML file already done for you.
   - default value of TiddlyWeb in `$:/plugins/tiddlywiki/tiddlyweb/save/offline` only save a static HTML file, will become non-editable after fist save & reload, must be edit for save a working TW5 base HTML file. (see below `Make a TiddlyWiki base image`)
 - following notes assumes that TiddlyWeb plugin had beeen config correctly
-  - when click "Save Button", tiddlers won't be embedded into base HTML file.
-  - tiddlers are save/modify via TiddlyWeb, they won't be embedded into base HTML file.
+  - when click "Save Button", tiddlers and drafts won't be embedded into base HTML file, only plugins and configs will be embedded.
+  - tiddlers and drafts are save/modify via TiddlyWeb, they won't be embedded into base HTML file.
   - install plugins **MUST click 'Save Button' manually** to cause a full upload of base HTML file, then reload the page (F5 should be fine) to activate.
 - about "Export all": all **tiddlers MUST be loaded** and then do a export, otherwise the tiddlers which did not loaded will only have title!!
 
