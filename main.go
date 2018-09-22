@@ -219,12 +219,14 @@ func genCert(crtPath string, keyPath string) {
 	//key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	key, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
-		log.Fatalf("Failed to generate ECDSA key: %s\n", err)
+		fmt.Printf("Failed to generate ECDSA key: %s\n", err)
+		return
 	}
 
 	keyDer, err := x509.MarshalECPrivateKey(key)
 	if err != nil {
-		log.Fatalf("Failed to serialize ECDSA key: %s\n", err)
+		fmt.Printf("Failed to serialize ECDSA key: %s\n", err)
+		return
 	}
 
 	keyPem := pem.EncodeToMemory(&pem.Block{
@@ -233,14 +235,16 @@ func genCert(crtPath string, keyPath string) {
 	})
 	err = ioutil.WriteFile(keyPath, keyPem, 0600)
 	if err != nil {
-		log.Fatalf("Failed to write '%s': %s", keyPath, err)
+		fmt.Printf("Failed to write '%s': %s", keyPath, err)
+		return
 	}
 
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 64)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 	if err != nil {
-		log.Fatalf("failed to generate serial number:", err)
+		fmt.Printf("failed to generate serial number:", err)
+		return
 	}
 
 	tmpl := &x509.Certificate{
@@ -259,7 +263,8 @@ func genCert(crtPath string, keyPath string) {
 
 	certDer, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &key.PublicKey, key)
 	if err != nil {
-		log.Fatalf("Failed to create certificate: %s\n", err)
+		fmt.Printf("Failed to create certificate: %s\n", err)
+		return
 	}
 
 	crtPem := pem.EncodeToMemory(&pem.Block{
@@ -268,9 +273,9 @@ func genCert(crtPath string, keyPath string) {
 	})
 	err = ioutil.WriteFile(crtPath, crtPem, 0600)
 	if err != nil {
-		log.Fatalf("Failed to write '%s': %s", crtPath, err)
+		fmt.Printf("Failed to write '%s': %s", crtPath, err)
+		return
 	}
-
 }
 
 type User struct {

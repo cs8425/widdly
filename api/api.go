@@ -308,6 +308,11 @@ func tiddler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		getTiddler(w, r)
 	case "PUT":
+		if r.URL.Path == "/recipes/all/tiddlers/$:/StoryList" { // skip
+			w.Header().Set("ETag", "bag/%24%3A%2FStoryList/0:00")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 		if !checkAuth(w, r) {
 			return
 		}

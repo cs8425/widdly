@@ -131,7 +131,7 @@ Default option are `journal_mode = WAL` and `synchronous = NORMAL`.
 ## TODO
 
 - [ ] `$:/DefaultTiddlers` loaded but not show up, might be cause by `$:/StoryList`
-  - [ ] ignore PUT `$:/StoryList` to prevent multi-tabs/users "Open List" conflict
+  - [x] ignore PUT `$:/StoryList` to prevent multi-tabs/users "Open List" conflict
 - [x] add authorization back
 - [ ] multiple TiddlyWiki in subpath/suburl
 - [ ] ACL: login for read & edit, login for edit, all can edit
@@ -151,7 +151,10 @@ Default option are `journal_mode = WAL` and `synchronous = NORMAL`.
   - [x] generate TLS certificate
   - [x] serve in https
   - [ ] auto let's encrypt certificate
-- [ ] json file backend
-  - [ ] full sync
-  - [ ] flush on exit & by time
+- [ ] backend
+  - [ ] json file backend
+    - [ ] full sync
+    - [ ] flush on exit & sync by time
+  - [ ] dump & import data
+  - [ ] convert between different backend type
 
