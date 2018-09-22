@@ -18,7 +18,7 @@ get source
 (optional) get dependency
 
     $ go get go.etcd.io/bbolt # bolt/bbolt support, cross-compile can work
-    $ go get github.com/mattn/go-sqlite3 # sqlite support, won't work for cross-compile
+    $ go get github.com/mattn/go-sqlite3 # sqlite support, won't (or hard to) work for cross-compile
 
 build:
 
@@ -33,8 +33,10 @@ or
 
 Setup account:
 
-    ./widdly -u <username> -p <password> > user.lst
-    ./widdly -u <username2> -p <password2> >> user.lst
+    ./widdly -u $user1 -p $pass1 > user.lst   # user 1, login name = $user1, password = $pass1
+    ./widdly -u $user2 -p $pass2 >> user.lst  # user 2, login name = $user2, password = $pass2
+                                             ...
+    ./widdly -u $userN -p $passN >> user.lst  # user N, login name = $userN, password = $passN
 
 
 Generate self-sign TLS EC Certificate & Key (optional):
@@ -44,9 +46,9 @@ Generate self-sign TLS EC Certificate & Key (optional):
 
 Run:
 
-    ./widdly -http :1337 -acc user.lst -db /path/to/the/database -gz 5 -rev 3
+    ./widdly -server :1337 -acc user.lst -db /path/to/the/database -gz 5 -rev 3
 
-- `-http :1337` - listen on port 1337 (by default port 8080 on localhost)
+- `-server :1337` - listen on port 1337 (by default port 8080 on localhost)
 - `-acc user.lst` - user list file.
 - `-db /path/to/the/database` - explicitly specify which file to use for the database (by default `widdly.db` in the current directory)
 - `-dbt flatFile` - database type: flatFile, bbolt, sqlite; use `-dbt ''` to list all
@@ -54,6 +56,19 @@ Run:
 - `-rev n` - max keeping history count, 0 for disable, -1 for unlimit; which n >= 1 will use more n+1 disk space, total size = size_of(tiddler) * (n + 2)
 - `-crt <crt.pem>`, `-key <key.pem>` - PEM encoded certificate file and private key file for HTTPS server, fill empty (default) for HTTP server
 - `-genkey` - set with non-empty `-crt` and `-key` for generate new TLS certificate, will override the file set with `-crt <crt.pem>` and `-key <key.pem>`
+
+
+## Important to know
+
+- must be **login to edit any thing**, otherwise data won't save
+- TiddlyWeb plugin must be config correctly:
+  - default base TW5 HTML file already done for you.
+  - default value of TiddlyWeb in `$:/plugins/tiddlywiki/tiddlyweb/save/offline` only save a static HTML file, will become non-editable after fist save & reload, must be edit for save a working TW5 base HTML file. (see below `Make a TiddlyWiki base image`)
+- following notes assumes that TiddlyWeb plugin had beeen config correctly
+  - when click "Save Button", tiddlers won't be embedded into base HTML file.
+  - tiddlers are save/modify via TiddlyWeb, they won't be embedded into base HTML file.
+  - install plugins **MUST click 'Save Button' manually** to cause a full upload of base HTML file, then reload the page (F5 should be fine) to activate.
+- about "Export all": all **tiddlers MUST be loaded** and then do a export, otherwise the tiddlers which did not loaded will only have title!!
 
 
 ## Different between PutSaver, TiddlyWeb and both enable
@@ -71,17 +86,13 @@ Run:
 
 
 - [1] base on WebDAV
-- [2] this implement
+- [2] this implement, TiddlyWeb plugin must be config correctly
 - [3] need to disable all authorization in current implement (modify code), or use other WebDAV server
 - [4] by using PutSaver (WebDAV), need login, cause a full upload of base file
 - [5] `$:/StoryList` not work :(
 
 
-## Important about "Export all"
-All **tiddlers MUST be loaded** and then do a export, otherwise the tiddlers which did not loaded will only have title!!
-
-
-## TiddlyWiki base image
+## Make a TiddlyWiki base image
 
 The TiddlyWiki code is stored in and served from index.html, which
 (as you can see by clicking on the Tools tab) is TiddlyWiki version 5.1.17.
@@ -104,7 +115,7 @@ The process for preparing a new index.html is:
   - save openlist: `[all[]] -[[$:/HistoryList]] -[[$:/Import]] -[[$:/isEncrypted]] -[[$:/UploadName]] -[prefix[$:/state/]] -[prefix[$:/temp/]] -[field:bag[bag]] -[has[draft.of]]`
 - Click the icon next to save, and an updated file will be downloaded.
 - Open the downloaded file in the web browser.
-- Repeat, adding any more plugins. Or add it later when "widdly" start.
+- Repeat, adding any more plugins. Or add more later when "widdly" start.
 - Copy the final download to index.html.
 
 ## Similar projects
@@ -120,6 +131,7 @@ Default option are `journal_mode = WAL` and `synchronous = NORMAL`.
 ## TODO
 
 - [ ] `$:/DefaultTiddlers` loaded but not show up, might be cause by `$:/StoryList`
+  - [ ] ignore PUT `$:/StoryList` to prevent multi-tabs/users "Open List" conflict
 - [x] add authorization back
 - [ ] multiple TiddlyWiki in subpath/suburl
 - [ ] ACL: login for read & edit, login for edit, all can edit
@@ -139,5 +151,7 @@ Default option are `journal_mode = WAL` and `synchronous = NORMAL`.
   - [x] generate TLS certificate
   - [x] serve in https
   - [ ] auto let's encrypt certificate
-
+- [ ] json file backend
+  - [ ] full sync
+  - [ ] flush on exit & by time
 

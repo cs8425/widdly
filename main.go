@@ -53,7 +53,7 @@ import (
 var (
 	VERSION = "SELFBUILD" // injected by buildflags
 
-	addr       = flag.String("http", "127.0.0.1:8080", "HTTP service address")
+	addr       = flag.String("server", "127.0.0.1:8080", "HTTP(S) service address")
 	dataSource = flag.String("db", "widdly.db", "Database path/file")
 	dataType   = flag.String("dbt", "flatFile", "Database type")
 
@@ -99,13 +99,13 @@ func main() {
 	// read in accounts
 	af, err := os.Open(*accounts)
 	if err != nil {
-		fmt.Println("[Open Accounts error]", err)
+		fmt.Println("[user] Open list error", err)
 		return
 	}
 
 	userlist, err := readTSV(af)
 	if err != nil {
-		fmt.Println("[Parse Accounts error]", *accounts, err)
+		fmt.Println("[user] Parse list error", *accounts, err)
 		return
 	}
 	fmt.Println("[user] count =", len(userlist))
@@ -118,8 +118,8 @@ func main() {
 	db, err := store.Open(*dataType, *dataSource)
 	if err != nil {
 		list := store.ListBackend()
-		fmt.Println("[Open backend error]", err)
-		fmt.Println("[backend list]", list)
+		fmt.Println("[backend] Open backend error", err)
+		fmt.Println("[backend] list:", list)
 		return
 	}
 	defer db.Close()
@@ -155,7 +155,7 @@ func main() {
 		// received an interrupt signal, shutdown.
 		if err := srv.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			log.Printf("HTTP server Shutdown: %v", err)
+			log.Printf("[server] shutdown: %v", err)
 		}
 		close(waitClosed)
 	}()
@@ -203,13 +203,15 @@ func startServer(srv *http.Server) {
 		srv.TLSConfig = cfg
 		//srv.TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0) // disable http/2
 
+		log.Printf("[server] HTTPS server Listen on: %v", *addr)
 		err = srv.ListenAndServeTLS(*crtFile, *keyFile)
 	} else {
+		log.Printf("[server] HTTP server Listen on: %v", *addr)
 		err = srv.ListenAndServe()
 	}
 
 	if err != http.ErrServerClosed {
-		log.Printf("HTTP server ListenAndServe: %v", err)
+		log.Printf("[server] ListenAndServe error: %v", err)
 	}
 }
 
